@@ -2,7 +2,9 @@
 
 import { Request, Response } from 'express';
 import { z } from 'zod';
+import UserService from '../services/UserService';
 
+const userService = new UserService()
 
 class UserController {
   public async index(req: Request, res: Response) {        
@@ -33,6 +35,7 @@ class UserController {
         required_error: "last name is required",
         invalid_type_error: "last name must be a string with max fifty characters",
       }).max(50),
+      zipcode: z.string().max(8).optional(),
     });
 
     const validationResult = userSchema.safeParse(userData);
@@ -43,8 +46,13 @@ class UserController {
       return res.json(validationResult.error.format())
     }
     
-    return res.json(userData)
-  
+
+    try{
+      const responseCreateUser = userService.createUser(userData)
+      return res.status(201).json(responseCreateUser)
+    }catch(e: any){
+      return res.json('Não foi possivel cadastrar usuário')
+    }
   }
 
   public async update(req: Request, res: Response){
