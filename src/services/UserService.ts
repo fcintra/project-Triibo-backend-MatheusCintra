@@ -58,7 +58,6 @@ class UserService {
             throw new Error('User not found');
         }
       
-
         if (zipcode) {
             responseAddressUser = await seachZipCode(zipcode);
         }
