@@ -1,25 +1,16 @@
 import axios from 'axios';
-
-interface AddressData {
-  bairro: string;
-  complemento: string;
-  localidade: string;
-  uf: string;
-  logradouro: string;
-}
+import { AddressData } from '../interfaces/ICreateAddress';
 
 
-export async function seachZipCode(zipcode: string): Promise<AddressData>{
+export async function seachZipCode(zipcode: string): Promise<Partial<AddressData>>{
   const apiUrl = `https://viacep.com.br/ws/${zipcode}/json/`;
 
   try {
     const response = await axios.get(apiUrl);
-    const { bairro, complemento, localidade, uf, logradouro } = response.data;
+    const { bairro, complemento, localidade, uf, logradouro, cep } = response.data;
     
-    return { bairro, complemento, localidade, uf, logradouro };
-
+    return { bairro, complemento, localidade, uf, logradouro, cep };
   } catch (error: any) {
-    // Handle errors appropriately
-    throw new Error(`Failed to make GET request to ${apiUrl}: ${error.message}`);
+    throw new Error(`Failed to make GET request to ${apiUrl}: ${error.message}. But user created!`);
   }
 }
