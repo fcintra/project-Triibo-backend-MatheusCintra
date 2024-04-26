@@ -20,9 +20,15 @@ class UserController {
     }
   }
 
-  public async show(req: Request, res: Response){
-    const {id} = req.params;
-    idSchema.parse(id);
+  public async show(req: Request, res: Response){    
+    const { id } = req.params;
+    const validationUserId = idSchema.safeParse(id);
+
+    if(validationUserId.error){
+      console.error('Erro de validação:', validationUserId.error.issues);
+      return res.status(400).json(validationUserId.error.format())
+    }
+    
     try {
         const existingUser = await userService.getUserById(id);
         if (!existingUser) {
@@ -87,11 +93,12 @@ class UserController {
   public async update(req: Request, res: Response){
     const { id } = req.params;
     const userData = req.body;
+    
     const validationUserId = idSchema.safeParse(id);
 
     if(validationUserId.error){
       console.error('Erro de validação:', validationUserId.error.issues);
-      return res.json(validationUserId.error.format())
+      return res.status(400).json(validationUserId.error.format())
     }
 
     const userSchema = z.object({
@@ -145,7 +152,7 @@ class UserController {
 
     if(validationUserId.error){
       console.error('Erro de validação:', validationUserId.error.issues);
-      return res.json(validationUserId.error.format())
+      return res.status(400).json(validationUserId.error.format())
     }
 
 
@@ -154,7 +161,7 @@ class UserController {
       return res.status(204).json({});
     } catch (error) {
       if (error instanceof Error) {
-          return res.status(400).json({ error: error.message });
+          return res.status(404).json({ error: error.message });
       } else {
           return res.status(400).json({ message: 'Could not delete user', error: 'Unknown error' });
       }
