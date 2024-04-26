@@ -5,12 +5,38 @@ import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import UserService from '../services/UserService';
+import HttpStatusCode from '../utils/statusCodeEnum';
 
 const userService = new UserService();
 
 const idSchema = z.string().uuid(); 
 
 class UserController {
+  private validateUserData(userData: any) {
+    const userSchema = z.object({
+      email: z.string({
+        required_error: "Email is required",
+        invalid_type_error: "Email must be a valid email address",
+      }).email(),
+      password: z.string({
+        required_error: "Password is required",
+        invalid_type_error: "Password must be a string with at least eight characters",
+      }).min(8),
+      firstName: z.string({
+        required_error: "First name is required",
+        invalid_type_error: "First name must be a string with maximum thirty characters",
+      }).max(30),
+      lastName: z.string({
+        required_error: "Last name is required",
+        invalid_type_error: "Last name must be a string with maximum fifty characters",
+      }).max(50),
+      zipcode: z.string().max(8).optional(),
+    });
+
+    return userSchema.safeParse(userData);
+  }
+
+
   public async index(req: Request, res: Response) {        
     try {
       const users = await userService.getUsers();
@@ -44,29 +70,9 @@ class UserController {
   public async store(req: Request, res: Response) {
     const userData = req.body;
 
-    const userSchema = z.object({
-      email: z.string({
-        required_error: "Name is required",
-        invalid_type_error: "Name must be a string",
-      }).email(),
-      password: z.string({
-        required_error: "password is required",
-        invalid_type_error: "password must be a string with eight or more characters",
-      }).min(8),
-      firstName: z.string({
-        required_error: "first name is required",
-        invalid_type_error: "first name must be a string with max thirty characters",
-      }).max(30),
-      lastName: z.string({
-        required_error: "last name is required",
-        invalid_type_error: "last name must be a string with max fifty characters",
-      }).max(50),
-      zipcode: z.string().max(8).optional(),
-    });
+    const validationResult = this.validateUserData(userData);
 
-    const validationResult = userSchema.safeParse(userData);
-
-    const {zipcode, ...userDataWithoutZipcode} = userData
+    
 
 
     if(validationResult.error){
@@ -74,18 +80,20 @@ class UserController {
       return res.json(validationResult.error.format())
     }
 
+    const {zipcode, ...userDataWithoutZipcode} = userData
 
     try{
       const hashedPassword = await bcrypt.hash(userDataWithoutZipcode.password, 10);
       userDataWithoutZipcode.password = hashedPassword;
 
-      const responseCreateUser = await userService.createUser(userDataWithoutZipcode, zipcode)
-      return res.status(201).json(responseCreateUser)
+      const responseCreateUser = await userService.createUser(userDataWithoutZipcode, zipcode);
+
+      return res.status(HttpStatusCode.Created).json(responseCreateUser)
     }catch(error){
       if (error instanceof Error) {
-        return res.status(400).json({ error: error.message })
+        return res.status(HttpStatusCode.BadRequest).json({ error: error.message })
       } else {
-          return res.status(400).json({ message: 'Não foi possível cadastrar usuário', error: 'Erro desconhecido' })
+          return res.status(HttpStatusCode.BadRequest).json({ message: 'Não foi possível cadastrar usuário', error: 'Erro desconhecido' })
       }
     }
   }
@@ -96,38 +104,18 @@ class UserController {
     
     const validationUserId = idSchema.safeParse(id);
 
+    const validationResult = this.validateUserData(userData);
+
     if(validationUserId.error){
       console.error('Erro de validação:', validationUserId.error.issues);
-      return res.status(400).json(validationUserId.error.format())
+      return res.status(HttpStatusCode.BadRequest).json(validationUserId.error.format())
     }
-
-    const userSchema = z.object({
-        email: z.string({
-            required_error: "Email is required",
-            invalid_type_error: "Email must be a valid email address",
-        }).email().max(50).optional(),
-        password: z.string({
-            required_error: "Password is required",
-            invalid_type_error: "Password must be a string with at least eight characters",
-        }).min(8).optional(),
-        firstName: z.string({
-            required_error: "First name is required",
-            invalid_type_error: "First name must be a string with maximum thirty characters",
-        }).max(30).optional(),
-        lastName: z.string({
-            required_error: "Last name is required",
-            invalid_type_error: "Last name must be a string with maximum fifty characters",
-        }).max(50).optional(),
-        zipcode: z.string().max(8).optional(),
-    });
-
-    const validationResult = userSchema.safeParse(userData);
 
     const {zipcode, ...userDataWithoutZipcode} = userData;
 
     if(validationResult.error){
         console.error('Validation Error:', validationResult.error.issues);
-        return res.status(400).json(validationResult.error.format());
+        return res.status(HttpStatusCode.BadRequest).json(validationResult.error.format());
     }
 
     try {
@@ -135,12 +123,12 @@ class UserController {
         userDataWithoutZipcode.password = hashedPassword;
 
         const responseUpdateUser = await userService.updateUser(id, userDataWithoutZipcode, zipcode);
-        return res.status(200).json(responseUpdateUser);
+        return res.status(HttpStatusCode.OK).json(responseUpdateUser);
     } catch (error) {
         if (error instanceof Error) {
-            return res.status(400).json({ error: error.message });
+            return res.status(HttpStatusCode.BadRequest).json({ error: error.message });
         } else {
-            return res.status(400).json({ message: 'Could not update user', error: 'Unknown error' });
+            return res.status(HttpStatusCode.BadRequest).json({ message: 'Could not update user', error: 'Unknown error' });
         }
     }
   }
@@ -152,18 +140,19 @@ class UserController {
 
     if(validationUserId.error){
       console.error('Erro de validação:', validationUserId.error.issues);
-      return res.status(400).json(validationUserId.error.format())
+      return res.status(HttpStatusCode.BadRequest).json(validationUserId.error.format())
     }
 
 
     try {
       await userService.deleteUser(id);
-      return res.status(204).json({});
+      return res.status(HttpStatusCode.NoContent).json({});
+
     } catch (error) {
       if (error instanceof Error) {
-          return res.status(404).json({ error: error.message });
+          return res.status(HttpStatusCode.NotFound).json({ error: error.message });
       } else {
-          return res.status(400).json({ message: 'Could not delete user', error: 'Unknown error' });
+          return res.status(HttpStatusCode.BadRequest).json({ message: 'Could not delete user', error: 'Unknown error' });
       }
     }
   }

@@ -22,7 +22,7 @@ router.get('/', userController.index);
 
 /**
  * @swagger
- * /users:
+ * /v1/users:
  *   post:
  *     summary: Cria um novo usuário
  *     requestBody:
@@ -30,7 +30,29 @@ router.get('/', userController.index);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             type: object
+ *             required:
+ *               - firstName
+ *               - lastName
+ *               - email
+ *               - password
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *                 description: Primeiro nome do usuário
+ *               lastName:
+ *                 type: string
+ *                 description: Último nome do usuário
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email do usuário
+ *               password:
+ *                 type: string
+ *                 description: Senha do usuário
+ *               zipcode:
+ *                 type: string
+ *                 description: CEP do usuário
  *     responses:
  *       '201':
  *         description: Usuário criado com sucesso
@@ -43,7 +65,7 @@ router.post('/', userController.store);
 
 /**
  * @swagger
- * /users/{id}:
+ * /v1/users/{id}:
  *   get:
  *     summary: Retorna um usuário pelo ID
  *     parameters:
@@ -64,7 +86,7 @@ router.get('/:id', userController.show);
 
 /**
  * @swagger
- * /users/{id}:
+ * /v1/users/{id}:
  *   delete:
  *     summary: Exclui um usuário pelo ID
  *     parameters:
@@ -110,7 +132,7 @@ router.delete('/:id', userController.delete);
 
 /**
  * @swagger
- * /users/{id}:
+ * /v1/users/{id}:
  *   put:
  *     summary: Atualiza um usuário pelo ID
  *     parameters:
