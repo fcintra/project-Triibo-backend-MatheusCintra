@@ -42,7 +42,7 @@ class UserController {
       const users = await userService.getUsers();
       res.json(users); 
     } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' }); 
+      res.status(HttpStatusCode.InternalServerError).json({ error: 'Internal Server Error' }); 
     }
   }
 
@@ -52,18 +52,18 @@ class UserController {
 
     if(validationUserId.error){
       console.error('Erro de validação:', validationUserId.error.issues);
-      return res.status(400).json(validationUserId.error.format())
+      return res.status(HttpStatusCode.BadRequest).json(validationUserId.error.format())
     }
     
     try {
         const existingUser = await userService.getUserById(id);
         if (!existingUser) {
-          return res.status(400).json({ error: 'Usuário não encontrado' });
+          return res.status(HttpStatusCode.BadRequest).json({ error: 'Usuário não encontrado' });
         }
 
         res.json(existingUser); 
     } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' }); 
+      res.status(HttpStatusCode.InternalServerError).json({ error: 'Internal Server Error' }); 
     }
   }
 
@@ -71,9 +71,6 @@ class UserController {
     const userData = req.body;
 
     const validationResult = this.validateUserData(userData);
-
-    
-
 
     if(validationResult.error){
       console.error('Erro de validação:', validationResult.error.issues);
