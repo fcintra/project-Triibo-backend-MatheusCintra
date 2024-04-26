@@ -62,6 +62,7 @@ class UserService {
   public async updateUser(id: string, userData: User, zipcode?: string){
     let responseAddressUser: Partial<AddressData> | null = {};
     let updatedUser;
+    let addressWasUpdated;
 
     try {
         const existingUser = await userModel.getUserById(id);
@@ -71,6 +72,9 @@ class UserService {
       
         if (zipcode) {
             responseAddressUser = await seachZipCode(zipcode);
+            if(!responseAddressUser.cep){
+              addressWasUpdated = `Address not found by zip code: ${zipcode}. Address has not been updated`;
+            }
         }
 
         const existingAddress = await addressModel.getAddressUserById(id);
@@ -90,7 +94,7 @@ class UserService {
           updatedUser = await userModel.updateUser(id, userData);
         }
 
-        return updatedUser;
+        return {updatedUser, addressWasUpdated};
     } catch (error) {
         console.error('Error updating user:', error);
         throw error;
