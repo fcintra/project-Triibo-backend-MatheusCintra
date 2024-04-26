@@ -5,7 +5,7 @@ import { IUserWithAddres } from "../interfaces/IUserWithAddress";
 import { prisma } from "../lib/prisma";
 
 
-interface UserWithAddress extends User {
+export interface UserWithAddress extends User {
   UserAddress?: Partial<AddressData>;
 }
 

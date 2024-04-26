@@ -14,8 +14,9 @@ const userModel = new UserModel()
 
 class UserService {
   public async createUser(userData: User, zipcode?: string){
-
     let responseAddressUser: Partial<AddressData> | null = {};
+    let addressWasCreated;
+    let user;
 
     const userAlredyExists = await userModel.getUserByEmail(userData.email);
 
@@ -23,19 +24,29 @@ class UserService {
       throw new Error('User already exists'); 
     }
 
-    const user = await userModel.createUser(userData);
-
     if(zipcode){
-        responseAddressUser = await seachZipCode(zipcode);
+      responseAddressUser = await seachZipCode(zipcode);
     }
 
-    if (responseAddressUser && zipcode) {
-      await addressModel.createAddress(user.id, responseAddressUser);
+        
+    if(zipcode && !responseAddressUser.cep){
+      addressWasCreated = `Address not found by zip code: ${zipcode}`;
     }
-    
-    const userCreated = await userModel.getUserById(user.id);
 
-    return userCreated
+    try {
+      user = await userModel.createUser(userData);
+      if (responseAddressUser.cep) {
+        await addressModel.createAddress(user.id, responseAddressUser);
+      }
+      const userCreated = await userModel.getUserById(user.id);
+
+      return {
+        userCreated,
+        addressWasCreated
+      }
+    } catch (error) {
+      throw new Error('Error creating user')
+    }
   }
 
   public async getUserById(id: string) {
@@ -62,16 +73,18 @@ class UserService {
             responseAddressUser = await seachZipCode(zipcode);
         }
 
-        if (responseAddressUser && zipcode) {
-            const existingAddress = await addressModel.getAddressUserById(id);
-            if (existingAddress) {
-                // Se o usuário já tiver um endereço, atualizar os dados do endereço existente
-                await addressModel.updateAddress(id, responseAddressUser);
-            } else {
-                // Se o usuário não tiver um endereço, criar um novo endereço
-                await addressModel.createAddress(id, responseAddressUser);
-            }
+        const existingAddress = await addressModel.getAddressUserById(id);
+
+        if (responseAddressUser.cep) {
+          if (existingAddress && existingAddress.zipcode !== zipcode) {
+              // Se o usuário já tiver um endereço e o cep enviado for diferente do cep que está cadastrado, atualizar os dados do endereço existente
+              await addressModel.updateAddress(id, responseAddressUser);
+          } else {
+              // Se o usuário não tiver um endereço, criar um novo endereço
+              await addressModel.createAddress(id, responseAddressUser);
+          }
         }
+        
         
         if(userData){
           updatedUser = await userModel.updateUser(id, userData);
@@ -97,6 +110,7 @@ class UserService {
   public async deleteUser(id: string){
     try {
       const existingUser = await userModel.getUserById(id);
+
       if (!existingUser) {
           throw new Error('User not found');
       }

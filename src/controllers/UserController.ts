@@ -6,36 +6,13 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import UserService from '../services/UserService';
 import HttpStatusCode from '../utils/statusCodeEnum';
+import { validateUserData } from '../utils/validateUserData';
 
 const userService = new UserService();
 
 const idSchema = z.string().uuid(); 
 
 class UserController {
-  private validateUserData(userData: any) {
-    const userSchema = z.object({
-      email: z.string({
-        required_error: "Email is required",
-        invalid_type_error: "Email must be a valid email address",
-      }).email(),
-      password: z.string({
-        required_error: "Password is required",
-        invalid_type_error: "Password must be a string with at least eight characters",
-      }).min(8),
-      firstName: z.string({
-        required_error: "First name is required",
-        invalid_type_error: "First name must be a string with maximum thirty characters",
-      }).max(30),
-      lastName: z.string({
-        required_error: "Last name is required",
-        invalid_type_error: "Last name must be a string with maximum fifty characters",
-      }).max(50),
-      zipcode: z.string().max(8).optional(),
-    });
-
-    return userSchema.safeParse(userData);
-  }
-
 
   public async index(req: Request, res: Response) {        
     try {
@@ -70,7 +47,7 @@ class UserController {
   public async store(req: Request, res: Response) {
     const userData = req.body;
 
-    const validationResult = this.validateUserData(userData);
+    const validationResult = validateUserData(userData);
 
     if(validationResult.error){
       console.error('Erro de validação:', validationResult.error.issues);
@@ -101,7 +78,7 @@ class UserController {
     
     const validationUserId = idSchema.safeParse(id);
 
-    const validationResult = this.validateUserData(userData);
+    const validationResult = validateUserData(userData);
 
     if(validationUserId.error){
       console.error('Erro de validação:', validationUserId.error.issues);
