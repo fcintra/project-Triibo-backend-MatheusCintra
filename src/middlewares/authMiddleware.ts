@@ -8,7 +8,6 @@ export default function authenticateToken(req: Request, res: Response, next: Nex
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; 
 
-    console.log(authHeader, token)
 
     if (!token) {
         return res.status(HttpStatusCode.Unauthorized).json({ error: 'Token de autenticação não fornecido' });

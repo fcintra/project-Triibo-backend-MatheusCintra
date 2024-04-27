@@ -1,5 +1,3 @@
-
-
 import express from 'express';
 import LoginController from '../controllers/LoginController';
 import UserController from '../controllers/UserController';
@@ -161,6 +159,13 @@ router.get('/:id', authenticateToken, userController.show);
  *         required: true
  *         schema:
  *           type: string
+ *       - in: header
+ *         name: authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT de autenticação
+ *         example: Bearer {seu-token-jwt}
  *     responses:
  *       '204':
  *         description: Usuário excluído com sucesso
@@ -210,6 +215,13 @@ router.delete('/:id', authenticateToken, userController.delete);
  *         required: true
  *         schema:
  *           type: string
+ *       - in: header
+ *         name: authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token JWT de autenticação
+ *         example: Bearer {seu-token-jwt}
  *     requestBody:
  *       required: true
  *       content:

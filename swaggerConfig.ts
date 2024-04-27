@@ -18,6 +18,7 @@ const options: swaggerJSDoc.Options = {
     apis: [path.resolve(__dirname, './src/routes/*.ts')],
 };
 
+
 const swaggerSpec = swaggerJSDoc(options);
 
 export default swaggerSpec;
