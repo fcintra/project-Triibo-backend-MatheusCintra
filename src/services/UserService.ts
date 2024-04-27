@@ -59,6 +59,16 @@ class UserService {
     }
   }
 
+  public async getUserByEmail(email: string) {
+    try {
+      const user = await userModel.getUserByEmail(email)
+      return user;
+    } catch (error) {
+        console.error('Erro ao buscar usuário pelo ID:', error);
+        throw error; 
+    }
+  }
+
   public async updateUser(id: string, userData: User, zipcode?: string){
     let responseAddressUser: Partial<AddressData> | null = {};
     let updatedUser;
