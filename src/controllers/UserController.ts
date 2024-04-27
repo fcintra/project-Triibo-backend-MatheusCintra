@@ -5,19 +5,30 @@ import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import UserService from '../services/UserService';
-import HttpStatusCode from '../utils/statusCodeEnum';
+
+import { HttpStatusCode } from 'axios';
 import { validateUserData } from '../utils/validateUserData';
 
 const userService = new UserService();
 
+
 const idSchema = z.string().uuid(); 
+
+
+
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) {
+    throw new Error('JWT secret not found in environment variables');
+}
+
 
 class UserController {
 
   public async index(req: Request, res: Response) {        
     try {
       const users = await userService.getUsers();
-      res.json(users); 
+      res.status(HttpStatusCode.Ok).json(users); 
     } catch (error) {
       res.status(HttpStatusCode.InternalServerError).json({ error: 'Internal Server Error' }); 
     }
@@ -97,7 +108,7 @@ class UserController {
         userDataWithoutZipcode.password = hashedPassword;
 
         const responseUpdateUser = await userService.updateUser(id, userDataWithoutZipcode, zipcode);
-        return res.status(HttpStatusCode.OK).json(responseUpdateUser);
+        return res.status(HttpStatusCode.Ok).json(responseUpdateUser);
     } catch (error) {
         if (error instanceof Error) {
             return res.status(HttpStatusCode.BadRequest).json({ error: error.message });
@@ -130,6 +141,7 @@ class UserController {
       }
     }
   }
+
 }
 
 export default UserController;
