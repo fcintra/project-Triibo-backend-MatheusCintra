@@ -1,16 +1,11 @@
 
-import { seachZipCode } from "../utils/searchZipCode";
-
-
 import { User } from "@prisma/client";
+import bcrypt from 'bcrypt';
 import { AddressData } from "../interfaces/ICreateAddress";
-import AddressModel from "../models/AddressModel";
-import UserModel from '../models/UserModel';
+import { seachZipCode } from "../utils/searchZipCode";
+const addressModel = require("../models/AddressModel");
+const userModel = require('../models/UserModel');
 
-
-const addressModel = new AddressModel()
-
-const userModel = new UserModel()
 
 class UserService {
   public async createUser(userData: User, zipcode?: string){
@@ -18,12 +13,7 @@ class UserService {
     let addressWasCreated;
     let user;
 
-    const userAlredyExists = await userModel.getUserByEmail(userData.email);
-
-    if(userAlredyExists){
-      throw new Error('User already exists'); 
-    }
-
+  
     if(zipcode){
       responseAddressUser = await seachZipCode(zipcode);
     }
@@ -34,6 +24,15 @@ class UserService {
     }
 
     try {
+      const userAlredyExists = await userModel.getUserByEmail(userData.email);
+
+      if(userAlredyExists){
+        throw new Error('User already exists'); 
+      }
+
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      userData.password = hashedPassword;
+  
       user = await userModel.createUser(userData);
       if (responseAddressUser.cep) {
         await addressModel.createAddress(user.id, responseAddressUser);
@@ -45,7 +44,7 @@ class UserService {
         addressWasCreated
       }
     } catch (error) {
-      throw new Error('Error creating user')
+      throw error;
     }
   }
 
@@ -54,7 +53,6 @@ class UserService {
       const user = await userModel.getUserById(id)
       return user;
     } catch (error) {
-        console.error('Erro ao buscar usuário pelo ID:', error);
         throw error; 
     }
   }
@@ -64,7 +62,6 @@ class UserService {
       const user = await userModel.getUserByEmail(email)
       return user;
     } catch (error) {
-        console.error('Erro ao buscar usuário pelo ID:', error);
         throw error; 
     }
   }
@@ -101,12 +98,13 @@ class UserService {
         
         
         if(userData){
+          const hashedPassword = await bcrypt.hash(userData.password, 10);
+          userData.password = hashedPassword;
           updatedUser = await userModel.updateUser(id, userData);
         }
 
         return {updatedUser, addressWasUpdated};
     } catch (error) {
-        console.error('Error updating user:', error);
         throw error;
     }
   }
@@ -115,7 +113,6 @@ class UserService {
     try {
       return await userModel.getAllUsers();
     } catch (error) {
-      console.error('Error updating user:', error);
       throw error;
     }
     
@@ -137,10 +134,9 @@ class UserService {
       return userModel.deleteUser(id);
 
     } catch (error) {
-        console.error('Error updating user:', error);
         throw error;
     }
   }
 }
 
-export default UserService;
+module.exports = new UserService();

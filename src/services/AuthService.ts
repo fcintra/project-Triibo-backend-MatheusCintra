@@ -2,8 +2,8 @@
 
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import UserModel from '../models/UserModel';
-const userModel = new UserModel();
+const userModel = require('../models/UserModel');
+
 const jwtSecret: string = process.env.JWT_SECRET || 'jwtsupersecret';
 
 if (!jwtSecret) {
@@ -12,7 +12,7 @@ if (!jwtSecret) {
 
 class AuthService {
 
-    async login(email: string, password: string): Promise<string | null> {
+    public async login(email: string, password: string): Promise<string | null> {
         const user = await userModel.getUserByEmail(email);
         if (!user) {
             return null; 
@@ -28,4 +28,4 @@ class AuthService {
     }
 }
 
-export default AuthService;
+module.exports = new AuthService();

@@ -1,8 +1,7 @@
-import { Request, Response } from 'express';
-import AuthService from '../services/AuthService';
 import { HttpStatusCode } from 'axios';
+import { Request, Response } from 'express';
+const authService = require('../services/AuthService');
 
-const authService = new AuthService();
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -23,10 +22,9 @@ class LoginController {
             res.status(HttpStatusCode.Created).json({ authToken });
 
         } catch (error) {
-            console.error('Erro ao fazer login:', error);
             res.status(HttpStatusCode.InternalServerError).json({ error: 'Erro interno do servidor' });
         }
     }
 }
 
-export default LoginController;
+module.exports = new LoginController();

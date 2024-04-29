@@ -54,4 +54,4 @@ class AddressModel {
   
 }
 
-export default AddressModel;
+module.exports = new AddressModel();

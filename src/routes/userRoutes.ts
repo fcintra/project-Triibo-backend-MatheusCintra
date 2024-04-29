@@ -1,10 +1,8 @@
 import express from 'express';
-import LoginController from '../controllers/LoginController';
-import UserController from '../controllers/UserController';
 import authenticateToken from '../middlewares/authMiddleware';
+const loginController = require('../controllers/LoginController');
+const userController = require('../controllers/UserController');
 
-const userController = new UserController();
-const loginController = new LoginController();
 
 
 const router = express.Router();
@@ -19,8 +17,6 @@ const router = express.Router();
  *         description: OK
  *       '500':
  *         description: Erro do servidor
- *     security:
- *       - bearerAuth: []
  */
 router.get('/', userController.index);
 
@@ -126,13 +122,6 @@ router.post('/login', loginController.login);
  *         required: true
  *         schema:
  *           type: string
- *       - in: header
- *         name: Authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT de autenticação
- *         example: Bearer {seu-token-jwt}
  *     responses:
  *       '200':
  *         description: OK
@@ -145,7 +134,7 @@ router.post('/login', loginController.login);
  *     security:
  *       - bearerAuth: []
  */
-router.get('/:id', authenticateToken, userController.show);
+router.get('/:id', userController.show);
 
 
 /**
@@ -159,13 +148,6 @@ router.get('/:id', authenticateToken, userController.show);
  *         required: true
  *         schema:
  *           type: string
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT de autenticação
- *         example: Bearer {seu-token-jwt}
  *     responses:
  *       '204':
  *         description: Usuário excluído com sucesso
@@ -188,11 +170,15 @@ router.delete('/:id', authenticateToken, userController.delete);
  *   schemas:
  *     UserUpdate:
  *       type: object
+ *       required:
+ *         - firstName
+ *         - lastName
+ *         - email
+ *         - password
  *       properties:
- *         id:
+ *         firstName:
  *           type: string
- *           format: uuid
- *         name:
+ *         lastName:
  *           type: string
  *         email:
  *           type: string
@@ -202,7 +188,7 @@ router.delete('/:id', authenticateToken, userController.delete);
  *           format: password
  *         zipcode:
  *           type: string
- *       minProperties: 1
+ *       minProperties: 4
  */
 /**
  * @swagger
