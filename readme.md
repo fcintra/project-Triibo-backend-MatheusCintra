@@ -70,3 +70,78 @@ yarn test
 Agora sua aplicação deve estar acessível em http://localhost:3000.
 
 
+# Documentação da API
+
+Para acessar a documentação da API, você pode visitar o seguinte URL em seu navegador:
+
+http://localhost:3000/api-docs
+
+O primeiro endpoint disponível em nossa API é:
+
+http://localhost:3000/v1/users
+
+### Exemplo de Corpo de Requisição
+
+Você pode enviar uma solicitação POST com o seguinte corpo de exemplo para criar um novo usuário:
+
+{
+  "firstName": "Teste",
+  "lastName": "testando",
+  "email": "teste@teste.com.br",
+  "password": "12345678",
+  "zipcode": "01001-000"
+}
+
+## Autenticação
+
+Após criar um usuário, você pode fazer login para obter um token de autenticação. O endpoint de login é:
+
+http://localhost:3000/v1/users/login
+
+### Corpo de Requisição para Login
+
+Envie uma solicitação POST com o seguinte corpo de exemplo para fazer login:
+
+```bash
+{
+  "email": "teste@teste.com.br",
+  "password": "12345678"
+}
+```
+
+Após o login bem-sucedido, um token JWT será gerado.
+
+## Utilizando o Token JWT
+
+Para acessar rotas protegidas que requerem autenticação, você deve incluir o token JWT no cabeçalho Authorization. Por exemplo:
+
+```
+Authorization: Bearer {TOKEN_JWT}
+```
+
+Se você estiver testando através do Swagger UI, clique no botão "Authorize" no canto superior direito, insira o token JWT gerado no campo "value" e clique em "Authorize" para aplicar o token. Pronto, agora você pode acessar os endpoints:
+
+Retorna o usuário que possui o ID fornecido no parametro da URL
+```
+GET: http://localhost:3000/v1/users/{userId}
+```
+
+Retorna todos os usuários
+```
+GET: http://localhost:3000/v1/users
+```
+
+Deleta o usuário que possui o ID fornecido no parametro da URL
+```
+DELETE: http://localhost:3000/v1/users/{userId}
+```
+Atualiza o usuário que possui o ID fornecido no parametro da URL
+```
+PUT: http://localhost:3000/v1/users/{userId}
+exemplo: Request Body: {
+  "firstName": "TESTE",
+  "lastName": "Teste",
+  "email": "teste12@teste.com",
+  "password": "12345678",
+  "zipcode": "01311000"
+}
