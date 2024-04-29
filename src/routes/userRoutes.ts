@@ -18,7 +18,7 @@ const router = express.Router();
  *       '500':
  *         description: Erro do servidor
  */
-router.get('/', userController.index);
+router.get('/', authenticateToken, userController.index);
 
 /**
  * @swagger
@@ -134,7 +134,7 @@ router.post('/login', loginController.login);
  *     security:
  *       - bearerAuth: []
  */
-router.get('/:id', userController.show);
+router.get('/:id', authenticateToken, userController.show);
 
 
 /**
