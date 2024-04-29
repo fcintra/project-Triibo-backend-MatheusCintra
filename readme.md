@@ -90,6 +90,7 @@ http://localhost:3000/v1/users
 
 Você pode enviar uma solicitação POST com o seguinte corpo de exemplo para criar um novo usuário:
 
+```bash
 {
   "firstName": "Teste",
   "lastName": "testando",
@@ -97,6 +98,7 @@ Você pode enviar uma solicitação POST com o seguinte corpo de exemplo para cr
   "password": "12345678",
   "zipcode": "01001-000"
 }
+```
 
 ## Autenticação
 
