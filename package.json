@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node-dev src/server.ts",
+    "start": "tsx watch src/server.ts",
     "test": "jest",
     "dev": "tsx watch src/server.ts"
   },

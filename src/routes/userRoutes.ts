@@ -9,19 +9,6 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/users:
- *   get:
- *     summary: Retorna todos os usuários
- *     responses:
- *       '200':
- *         description: OK
- *       '500':
- *         description: Erro do servidor
- */
-router.get('/', authenticateToken, userController.index);
-
-/**
- * @swagger
  * components:
  *   schemas:
  *     UserCreate:
@@ -111,6 +98,22 @@ router.post('/', userController.store);
  */
 router.post('/login', loginController.login);
 
+
+/**
+ * @swagger
+ * /v1/users:
+ *   get:
+ *     summary: Retorna todos os usuários
+ *     responses:
+ *       '200':
+ *         description: OK
+ *       '500':
+ *         description: Erro do servidor
+ */
+router.get('/', authenticateToken, userController.index);
+
+
+
 /**
  * @swagger
  * /v1/users/{id}:
@@ -131,8 +134,6 @@ router.post('/login', loginController.login);
  *         description: Erro do servidor
  *       '401':
  *         description: Não autorizado. Token JWT ausente ou inválido.
- *     security:
- *       - bearerAuth: []
  */
 router.get('/:id', authenticateToken, userController.show);
 
@@ -159,8 +160,6 @@ router.get('/:id', authenticateToken, userController.show);
  *         description: Não autorizado. Token JWT ausente ou inválido.
  *       '500':
  *         description: Erro do servidor
- *     security:
- *       - bearerAuth: []
  */
 router.delete('/:id', authenticateToken, userController.delete);
 
@@ -186,8 +185,10 @@ router.delete('/:id', authenticateToken, userController.delete);
  *         password:
  *           type: string
  *           format: password
+ *           example: 12345678
  *         zipcode:
  *           type: string
+ *           example: "04950000"
  *       minProperties: 4
  */
 /**
@@ -201,13 +202,6 @@ router.delete('/:id', authenticateToken, userController.delete);
  *         required: true
  *         schema:
  *           type: string
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Token JWT de autenticação
- *         example: Bearer {seu-token-jwt}
  *     requestBody:
  *       required: true
  *       content:
@@ -225,8 +219,6 @@ router.delete('/:id', authenticateToken, userController.delete);
  *         description: Erro do servidor
  *       '401':
  *         description: Não autorizado. Token JWT ausente ou inválido.
- *     security:
- *       - bearerAuth: []
  */
 router.put('/:id', authenticateToken, userController.update);
 

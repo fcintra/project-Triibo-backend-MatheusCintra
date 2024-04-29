@@ -21,6 +21,6 @@ export function validateUserData(userData: UserWithZipCode) {
       }).min(1).max(50),
       zipcode: z.string().min(8).max(8).optional(),
     });
-    
+
     return userSchema.safeParse(userData);
 }
